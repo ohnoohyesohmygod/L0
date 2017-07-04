@@ -26,6 +26,7 @@ import (
 	"github.com/bocheninc/L0/components/db"
 	"github.com/bocheninc/L0/components/log"
 	"github.com/bocheninc/L0/core/accounts"
+	"github.com/bocheninc/L0/core/ledger/state/state_hash"
 	"github.com/bocheninc/L0/core/types"
 )
 
@@ -180,7 +181,7 @@ func (state *State) AtomicWrite(writeBatchs []*db.WriteBatch) error {
 	return nil
 }
 
-func (state *State) GetStateDelta(f ForeacherHandler) {
+func (state *State) GetStateDelta(f state_hash.ForeacherHandler) {
 	state.dbHandler.ForeachCF(state.columnFamily, f)
 }
 

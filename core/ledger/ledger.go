@@ -36,6 +36,7 @@ import (
 	"github.com/bocheninc/L0/core/ledger/contract"
 	"github.com/bocheninc/L0/core/ledger/merge"
 	"github.com/bocheninc/L0/core/ledger/state"
+	"github.com/bocheninc/L0/core/ledger/state/state_hash"
 	"github.com/bocheninc/L0/core/params"
 	"github.com/bocheninc/L0/core/types"
 	"github.com/bocheninc/L0/vm"
@@ -117,7 +118,7 @@ func (ledger *Ledger) AppendBlock(block *types.Block, flag bool) error {
 
 	block.Header.TxsMerkleHash = merkleRootHash(block.Transactions)
 	t := time.Now()
-	block.Header.StateHash = state.UpdateHash(txWriteBatchs)
+	block.Header.StateHash = state_hash.UpdateHash(txWriteBatchs)
 	delay := time.Since(t)
 
 	writeBatchs := ledger.block.AppendBlock(block)
@@ -509,9 +510,9 @@ func (ledger *Ledger) GetTmpBalance(addr accounts.Address) (*big.Int, error) {
 }
 
 func (ledger *Ledger) LoadSateHash() crypto.Hash {
-	return state.InitHash(func(hanlder state.ForeacherHandler) {
-		ledger.state.GetStateDelta(hanlder)
-		ledger.contract.GetStateDelta(hanlder)
+	return state_hash.InitHash(func(handler state_hash.ForeacherHandler) {
+		ledger.state.GetStateDelta(handler)
+		ledger.contract.GetStateDelta(handler)
 	})
 }
 

@@ -16,7 +16,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-package state
+package state_hash
 
 import (
 	"bytes"
@@ -40,6 +40,7 @@ var (
 var (
 	once          sync.Once
 	cacheRootNode *stateCacheNode
+	cacheLeafs    map[int]*stateCacheNode
 )
 
 // stateCacheUnit
