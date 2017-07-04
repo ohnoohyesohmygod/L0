@@ -338,7 +338,7 @@ func (lbft *Lbft) handleTransaction() {
 			var vc *ViewChange
 			lbft.voteViewChange.IterVoter(func(voter string, ticket vote.ITicket) {
 				tvc := ticket.(*ViewChange)
-				if tvc.PrimaryID != lbft.lastPrimaryID && tvc.H >= lbft.lastSeqNum() {
+				if tvc.PrimaryID != lbft.lastPrimaryID && tvc.H == lbft.lastSeqNum() {
 					if vc == nil {
 						vc = tvc
 					} else if tvc.Priority < vc.Priority {
@@ -700,16 +700,16 @@ func (lbft *Lbft) recvViewChange(vc *ViewChange) {
 	}
 
 	lbft.voteViewChange.Add(vc.ReplicaID, vc)
-	if vc.PrimaryID == vc.ReplicaID {
-		lbft.voteViewChange.IterVoter(func(voter string, ticket vote.ITicket) {
-			tvc := ticket.(*ViewChange)
-			if tvc.PrimaryID == vc.PrimaryID {
-				if tvc.H < vc.H {
-					tvc.H = vc.H
-				}
+	lbft.voteViewChange.IterVoter(func(voter string, ticket vote.ITicket) {
+		tvc := ticket.(*ViewChange)
+		if tvc.PrimaryID == vc.PrimaryID {
+			if tvc.H < vc.H {
+				tvc.H = vc.H
+			} else {
+				vc.H = tvc.H
 			}
-		})
-	}
+		}
+	})
 
 	cnt := lbft.voteViewChange.Size()
 	log.Infof("Replica %s received view change message from %s for voter %s , vote size %d", lbft.options.ID, vc.ReplicaID, vc.PrimaryID, cnt)
